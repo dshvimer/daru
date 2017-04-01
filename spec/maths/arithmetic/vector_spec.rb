@@ -1,98 +1,160 @@
 describe Daru::Vector do
-  before :each do
-    @dv1 = Daru::Vector.new [1,2,3,4], name: :boozy, index: [:bud, :kf, :henie, :corona]
-    @dv2 = Daru::Vector.new [1,2,3,4], name: :mayer, index: [:obi, :wan, :kf, :corona]
-    @with_md1 = Daru::Vector.new [1,2,3,nil,5,nil], name: :missing, index: [:a, :b, :c, :obi, :wan, :corona]
-    @with_md2 = Daru::Vector.new [1,2,3,nil,5,nil], name: :missing, index: [:obi, :wan, :corona, :a, :b, :c]
+
+  let(:dv1) do 
+    Daru::Vector.new [1,2,3,4], {
+      name: :boozy, 
+      index: [:bud, :kf, :henie, :corona]
+    } 
   end
+  let(:dv2) do 
+    Daru::Vector.new [1,2,3,4], {
+      name: :mayer, 
+      index: [:obi, :wan, :kf, :corona]
+    } 
+  end
+  let(:with_md1) do 
+    Daru::Vector.new [1,2,3,nil,5,nil], {
+      name: :missing, 
+      index: [:a, :b, :c, :obi, :wan, :corona]
+    }
+  end
+  let(:with_md2) do 
+    Daru::Vector.new [1,2,3,nil,5,nil], {
+      name: :missing, 
+      index: [:obi, :wan, :corona, :a, :b, :c]
+    }
+  end
+  let(:v1) { Daru::Vector.new([1,2,3]) }
+  let(:v2) { Daru::Vector.new([1,2,3], index: [:a,:b,:c]) }
 
-  context "#+" do
-    it "adds matching indexes of the other vector" do
-      expect(@dv1 + @dv2).to eq(Daru::Vector.new([nil,8,nil,5,nil,nil], name: :boozy, index: [:bud,:corona,:henie,:kf,:obi,:wan]))
+  describe "#+" do
+
+    context "adds matching indexes of the other vector" do
+      subject(:vec) { dv1 + dv2 }
+      its(:name) { is_expected.to eq :boozy }
+      its(:index) { is_expected.to eq Daru::Index.new [:bud,:corona, :henie, :kf, :obi, :wan] }
+      it { expect(vec.to_a).to eq [nil, 8, nil, 5, nil, nil] }
     end
 
-    it "adds number to each element of the entire vector" do
-      expect(@dv1 + 5).to eq(Daru::Vector.new [6,7,8,9], name: :boozy, index: [:bud, :kf, :henie, :corona])
+    context "adds number to each element of the entire vector" do
+      subject(:vec) { dv1 + 5 }
+      its(:name) { is_expected.to eq :boozy }
+      its(:index) { is_expected.to eq Daru::Index.new [:bud, :kf, :henie, :corona] }
+      it { expect(vec.to_a).to eq [6, 7, 8, 9] }
     end
 
-    it "does not add when a number is being added" do
-      expect(@with_md1 + 1).to eq(Daru::Vector.new([2,3,4,nil,6,nil], name: :missing, index: [:a, :b, :c, :obi, :wan, :corona]))
+    context "does not add when a number is being added" do
+      subject(:vec) { with_md1 + 1 }
+      its(:name) { is_expected.to eq :missing }
+      its(:index) { is_expected.to eq Daru::Index.new [:a, :b, :c, :obi, :wan, :corona] }
+      it { expect(vec.to_a).to eq [2, 3, 4, nil, 6, nil] }
     end
 
-    it "puts a nil when one of the operands is nil" do
-      expect(@with_md1 + @with_md2).to eq(Daru::Vector.new([nil,7,nil,nil,nil,7], name: :missing, index: [:a, :b, :c, :corona, :obi, :wan]))
+    context "puts a nil when one of the operands is nil" do
+      subject(:vec) { with_md1 + with_md2 }
+      its(:name) { is_expected.to eq :missing }
+      its(:index) { is_expected.to eq Daru::Index.new [:a, :b, :c, :corona, :obi, :wan] }
+      it { expect(vec.to_a).to eq [nil, 7, nil, nil, nil, 7] }
     end
 
-    it "appropriately adds vectors with numeric and non-numeric indexes" do
+    context "appropriately adds vectors with numeric and non-numeric indexes" do
       pending "Need an alternate index implementation?"
-      v1 = Daru::Vector.new([1,2,3])
-      v2 = Daru::Vector.new([1,2,3], index: [:a,:b,:c])
-
-      expect(v1 + v2).to eq(Daru::Vector.new([nil]*6, index: [0,1,2,:a,:b,:c]))
+      # subject(:vec) { v1 + v2 }
+      # it { expect(v1 + v2).to eq(Daru::Vector.new([nil]*6, index: [0,1,2,:a,:b,:c])) }
     end
   end
 
-  context "#-" do
-    it "subtracts matching indexes of the other vector" do
-      expect(@dv1 - @dv2).to eq(Daru::Vector.new([nil,0,nil,-1,nil,nil], name: :boozy, index: [:bud,:corona,:henie,:kf,:obi,:wan]))
+  describe "#-" do
+    context "subtracts matching indexes of the other vector" do
+      subject(:vec) { dv1 - dv2 }
+      its(:name) { is_expected.to eq :boozy }
+      its(:index) { is_expected.to eq Daru::Index.new [:bud, :corona, :henie, :kf, :obi, :wan] }
+      it { expect(vec.to_a).to eq [nil, 0, nil, -1, nil, nil] }
     end
 
-    it "subtracts number from each element of the entire vector" do
-      expect(@dv1 - 5).to eq(Daru::Vector.new [-4,-3,-2,-1], name: :boozy, index: [:bud, :kf, :henie, :corona])
-    end
-  end
-
-  context "#*" do
-    it "multiplies matching indexes of the other vector" do
-
-    end
-
-    it "multiplies number to each element of the entire vector" do
-
+    context "subtracts number from each element of the entire vector" do
+      subject(:vec) { dv1 - 5 }
+      its(:name) { is_expected.to eq :boozy }
+      its(:index) { is_expected.to eq Daru::Index.new [:bud,  :kf, :henie, :corona] }
+      it { expect(vec.to_a).to eq [-4, -3, -2, -1] }
     end
   end
 
-  context "#\/" do
-    it "divides matching indexes of the other vector" do
-
+  describe "#*" do
+    context "multiplies matching indexes of the other vector" do
+      subject(:vec) { dv1 * dv2 }
+      its(:name) { is_expected.to eq :boozy }
+      its(:index) { is_expected.to eq Daru::Index.new [:bud, :corona, :henie, :kf, :obi, :wan] }
+      it { expect(vec.to_a).to eq [nil, 16, nil, 6, nil, nil] }
     end
 
-    it "divides number from each element of the entire vector" do
-
-    end
-  end
-
-  context "#%" do
-
-  end
-
-  context "#**" do
-
-  end
-
-  context "#exp" do
-    it "calculates exp of all numbers" do
-      expect(@with_md1.exp.round(3)).to eq(Daru::Vector.new([2.718281828459045,
-        7.38905609893065, 20.085536923187668, nil, 148.4131591025766, nil], index:
-        [:a, :b, :c, :obi, :wan, :corona], name: :missing).round(3))
+    context "multiplies number to each element of the entire vector" do
+      subject(:vec) { dv1 * 2 }
+      its(:name) { is_expected.to eq :boozy }
+      its(:index) { is_expected.to eq Daru::Index.new [:bud,  :kf, :henie, :corona] }
+      it { expect(vec.to_a).to eq [2, 4, 6, 8] }
     end
   end
 
-  context "#abs" do
-    it "calculates abs value" do
-      @with_md1.abs
+  describe "#\/" do
+    context "divides matching indicies of the other vector" do
+      subject(:vec) { dv1 / dv2 }
+      its(:name) { is_expected.to eq :boozy }
+      its(:index) { is_expected.to eq Daru::Index.new [:bud, :corona, :henie, :kf, :obi, :wan] }
+      it { expect(vec.to_a).to eq [nil, 1, nil, 0, nil, nil] }
+    end
+
+    context "divides number from each element of the entire vector" do
+      subject(:vec) { dv1 / 0.5 }
+      its(:name) { is_expected.to eq :boozy }
+      its(:index) { is_expected.to eq Daru::Index.new [:bud,  :kf, :henie, :corona] }
+      it { expect(vec.to_a).to eq [2, 4, 6, 8] }
     end
   end
 
-  context "#sqrt" do
-    it "calculates sqrt" do
-      @with_md1.sqrt
+  describe "#%" do
+    context "applies modulo operator to matching indicies of the other vector" do
+      subject(:vec) { dv1 % dv2 }
+      its(:name) { is_expected.to eq :boozy }
+      its(:index) { is_expected.to eq Daru::Index.new [:bud, :corona, :henie, :kf, :obi, :wan] }
+      it { expect(vec.to_a).to eq [nil, 0, nil, 2, nil, nil] }
+    end
+
+    context "applies modulo operator to each element of the other vector" do
+      subject(:vec) { dv1 % 2 }
+      its(:name) { is_expected.to eq :boozy }
+      its(:index) { is_expected.to eq Daru::Index.new [:bud,  :kf, :henie, :corona] }
+      it { expect(vec.to_a).to eq [1, 0, 1, 0] }
     end
   end
 
-  context "#round" do
-    it "rounds to given precision" do
-      @with_md1.round(2)
-    end
-  end
+  # context "#**" do
+
+  # end
+
+  # context "#exp" do
+    # it "calculates exp of all numbers" do
+    #   expect(@with_md1.exp.round(3)).to eq(Daru::Vector.new([2.718281828459045,
+    #     7.38905609893065, 20.085536923187668, nil, 148.4131591025766, nil], index:
+    #     [:a, :b, :c, :obi, :wan, :corona], name: :missing).round(3))
+    # end
+  # end
+
+  # context "#abs" do
+    # it "calculates abs value" do
+    #   @with_md1.abs
+    # end
+  # end
+
+  # context "#sqrt" do
+    # it "calculates sqrt" do
+    #   @with_md1.sqrt
+    # end
+  # end
+
+  # context "#round" do
+    # it "rounds to given precision" do
+    #   @with_md1.round(2)
+    # end
+  # end
 end
